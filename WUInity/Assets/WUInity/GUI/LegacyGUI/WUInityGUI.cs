@@ -112,20 +112,27 @@ namespace WUInity.UI
             SetDirty();
         }
 
+        readonly object _messagesLock = new object();
         LinkedList<string> _messages = new LinkedList<string>();
         public void NewMessage(string message)
         {
-            _messages.AddFirst(message);
-            if(_messages.Count > 50)
+            lock (_messagesLock)
             {
-                _messages.RemoveLast();
+                _messages.AddFirst(message);
+                if(_messages.Count > 50)
+                {
+                    _messages.RemoveLast();
+                }
             }
         }
 
         bool _simulationRunning = false;
         public void SimulationStarted()
         {
-            _messages.Clear();
+            lock (_messagesLock)
+            {
+                _messages.Clear();
+            }
             _simulationRunning = true;
         }
 
@@ -259,11 +266,23 @@ namespace WUInity.UI
             GUI.BeginGroup(new Rect(0, Screen.height - consoleHeight, Screen.width, consoleHeight), "");
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(consoleHeight));
 
-            LinkedListNode<string> node = _messages.First;
-            while(node != null)
+            string[] messageSnapshot;
+            lock (_messagesLock)
             {
-                GUILayout.Label(node.Value);
-                node = node.Next;
+                messageSnapshot = new string[_messages.Count];
+                int index = 0;
+                LinkedListNode<string> node = _messages.First;
+                while(node != null)
+                {
+                    messageSnapshot[index] = node.Value;
+                    index++;
+                    node = node.Next;
+                }
+            }
+
+            for (int i = 0; i < messageSnapshot.Length; i++)
+            {
+                GUILayout.Label(messageSnapshot[i]);
             }
             
             GUILayout.EndScrollView();

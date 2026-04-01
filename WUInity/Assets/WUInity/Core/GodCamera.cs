@@ -40,7 +40,10 @@ namespace WUInity
 
         public void Awake()
         {
-            _rtsSlection.positionCount = 4;
+            if (_rtsSlection != null)
+            {
+                _rtsSlection.positionCount = 4;
+            }
         }
 
         public void SetManager(WUInityManager manager)
@@ -70,6 +73,16 @@ namespace WUInity
         void Update()
         {
             if (_input == null)
+            {
+                return;
+            }
+
+            if (_engine == null && _manager != null)
+            {
+                _engine = _manager.Engine;
+            }
+
+            if (_engine == null)
             {
                 return;
             }
@@ -150,8 +163,13 @@ namespace WUInity
         Plane _yPlane = new Plane(Vector3.up, 0f);
         private void VehicleSelection()
         {
+            if (_rtsSlection == null)
+            {
+                return;
+            }
+
             //RTS stuff
-            if (_engine.Simulation != null && _engine.Simulation.State == Simulation.SimulationState.Running && _engine.Simulation.IsPaused)
+            if (_engine != null && _engine.Simulation != null && _engine.Simulation.State == Simulation.SimulationState.Running && _engine.Simulation.IsPaused)
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {

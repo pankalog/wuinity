@@ -14,6 +14,7 @@ namespace PREACT.Evacuation
         Simulation _simulation;
         private TrafficModule _trafficModule;
         private PedestrianModule _pedestrianModule;
+        private DroneModule _droneModule;
         private TriggerBufferModule _triggerBufferModule;
 
 
@@ -113,6 +114,10 @@ namespace PREACT.Evacuation
             }
 
             CreateDroneModule();
+            if (_droneModule != null)
+            {
+                createdModules.Add(_droneModule);
+            }
 
             return createdModules;
         }
@@ -183,7 +188,7 @@ namespace PREACT.Evacuation
 
         private void CreateDroneModule()
         {
-            //Panos
+            _droneModule = new DebugDroneModule(_simulation);
         }
 
         public void CreateAndRunTriggerBufferModule(Simulation simulation, PREACTInput input, WeatherManager weather, TimeManager time)

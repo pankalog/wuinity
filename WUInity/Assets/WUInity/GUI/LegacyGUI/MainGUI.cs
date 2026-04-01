@@ -52,6 +52,12 @@ namespace WUInity.UI
                 return;
             }
 
+            if (_input.Simulation == null || _input.PedestrianModule == null || _input.TrafficModule == null || _input.WildfireModule == null || _input.SmokeModule == null)
+            {
+                GUI.Label(new Rect(buttonColumnStart, buttonIndex * (buttonHeight + 5) + 10, columnWidth, buttonHeight), "Input is loading...");
+                return;
+            }
+
             if (GUI.Button(new Rect(buttonColumnStart, buttonIndex * (buttonHeight + 5) + 10, columnWidth, buttonHeight), "Save"))
             {
                 if (_wuinityManager.Engine.WorkingFile== null)
@@ -151,7 +157,7 @@ namespace WUInity.UI
         void CleanMainMenu()
         {
             mainMenuDirty = false;
-            if(_input != null)
+            if(_input != null && _input.Simulation != null)
             {
                 _dT = _input.Simulation.DeltaTime.ToString();
                 _nrRuns = _engineTask.NumberOfRuns.ToString();
@@ -166,6 +172,11 @@ namespace WUInity.UI
             ParseTrafficInput();
 
             if (mainMenuDirty)
+            {
+                return;
+            }
+
+            if (_input == null || _input.Simulation == null)
             {
                 return;
             }
@@ -188,7 +199,10 @@ namespace WUInity.UI
             ParseMainData();
             creatingNewFile = false;
             string name = Path.GetFileNameWithoutExtension(paths[0]);
-            _input.Simulation.Name = name;
+            if (_input != null && _input.Simulation != null)
+            {
+                _input.Simulation.Name = name;
+            }
 
             PREACT.Input.PREACTInput.SaveToDisk(_input, paths[0]);
         }
@@ -230,4 +244,3 @@ namespace WUInity.UI
         
     }
 }
-
