@@ -261,10 +261,8 @@ namespace WUInity.UI
                 
         void UpdateConsole()
         {
-            //console
-            GUI.Box(new Rect(0, Screen.height - consoleHeight, Screen.width, consoleHeight), "");
-            GUI.BeginGroup(new Rect(0, Screen.height - consoleHeight, Screen.width, consoleHeight), "");
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(consoleHeight));
+            Rect consoleRect = new Rect(0, Screen.height - consoleHeight, Screen.width, consoleHeight);
+            GUI.Box(consoleRect, "");
 
             string[] messageSnapshot;
             lock (_messagesLock)
@@ -280,13 +278,19 @@ namespace WUInity.UI
                 }
             }
 
+            float lineHeight = 18f;
+            float padding = 6f;
+            float contentHeight = Mathf.Max(consoleHeight - 8f, messageSnapshot.Length * lineHeight + padding * 2f);
+            Rect scrollRect = new Rect(consoleRect.x + 2f, consoleRect.y + 2f, consoleRect.width - 4f, consoleRect.height - 4f);
+            Rect viewRect = new Rect(0f, 0f, scrollRect.width - 16f, contentHeight);
+            scrollPosition = GUI.BeginScrollView(scrollRect, scrollPosition, viewRect);
+
             for (int i = 0; i < messageSnapshot.Length; i++)
             {
-                GUILayout.Label(messageSnapshot[i]);
+                GUI.Label(new Rect(4f, padding + i * lineHeight, viewRect.width - 8f, lineHeight), messageSnapshot[i]);
             }
-            
-            GUILayout.EndScrollView();
-            GUI.EndGroup();
+
+            GUI.EndScrollView();
         }
 
         public void SetDirty()
