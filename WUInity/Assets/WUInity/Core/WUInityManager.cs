@@ -10,6 +10,7 @@ using UnityEngine;
 using PREACT.Input;                    
 using PREACT.Traffic;                          
 using System.IO;
+using Mapbox.Unity.Utilities;
 using PREACT;
 using WUInity.UI;
 using PREACT.Population;
@@ -114,6 +115,7 @@ namespace WUInity
         PREACT.Runtime.WorkingData _workingData;
         Engine _engine;
         public Engine Engine { get => _engine; }
+
         private void Awake()
         {
             if (Application.isEditor)
@@ -125,22 +127,54 @@ namespace WUInity
                 DeveloperMode = false;
             }            
 
-            _simBorder.gameObject.SetActive(false);
-            _osmBorder.gameObject.SetActive(false);
+            if (_simBorder != null)
+            {
+                _simBorder.gameObject.SetActive(false);
+            }
 
+            if (_osmBorder != null)
+            {
+                _osmBorder.gameObject.SetActive(false);
+            }
+
+            InitializeRuntimeIfNeeded();
+        }
+
+        private void OnEnable()
+        {
+            InitializeRuntimeIfNeeded();
+        }
+
+        private void InitializeRuntimeIfNeeded()
+        {
             //gui            
             _wuiGUI = GetComponent<WUInityGUI>();
             if (_wuiGUI == null)
             {
-                gameObject.AddComponent<WUInityGUI>();
+                _wuiGUI = gameObject.AddComponent<WUInityGUI>();
             }
-                        
-            _engine = new Engine(this);
-            _workingData = new PREACT.Runtime.WorkingData();
-            _wuiGUI.SetManager(this, _engine, _workingData);  
+
+            if (_engine == null)
+            {
+                _engine = new Engine(this);
+            }
+
+            if (_workingData == null)
+            {
+                _workingData = new PREACT.Runtime.WorkingData();
+            }
+
+            if (_wuiGUI != null)
+            {
+                _wuiGUI.SetManager(this, _engine, _workingData);
+            }
 
             //map
-            _mapboxMap = FindFirstObjectByType<Mapbox.Unity.Map.AbstractMap>();
+            if (_mapboxMap == null)
+            {
+                _mapboxMap = FindFirstObjectByType<Mapbox.Unity.Map.AbstractMap>();
+            }
+
             if (_mapboxMap == null)
             {
                 GameObject g = new GameObject();
@@ -149,7 +183,11 @@ namespace WUInity
                 _mapboxMap = g.AddComponent<Mapbox.Unity.Map.AbstractMap>();
             }
 
-            _painter = FindFirstObjectByType<Painter>();
+            if (_painter == null)
+            {
+                _painter = FindFirstObjectByType<Painter>();
+            }
+
             if (_painter == null)
             {
                 GameObject g = new GameObject();
@@ -159,7 +197,11 @@ namespace WUInity
                 g.SetActive(false);
             }
 
-            _godCamera = FindFirstObjectByType<GodCamera>();
+            if (_godCamera == null)
+            {
+                _godCamera = FindFirstObjectByType<GodCamera>();
+            }
+
             if (_godCamera == null)
             {
                 GameObject g = new GameObject();
@@ -167,28 +209,57 @@ namespace WUInity
                 g.name = "GodCamera";
                 _godCamera = g.AddComponent<GodCamera>();
             }
-            _godCamera.SetManager(this);
 
-            _simulationDomainVisualizer = new SimulationDomainVisualizerUnity(transform);
-            _fireDomainVisualizer = new FireDomainVisualizerUnity(transform);
+            if (_godCamera != null)
+            {
+                _godCamera.SetManager(this);
+            }
 
-            
+            if (_simulationDomainVisualizer == null)
+            {
+                _simulationDomainVisualizer = new SimulationDomainVisualizerUnity(transform);
+            }
+
+            if (_fireDomainVisualizer == null)
+            {
+                _fireDomainVisualizer = new FireDomainVisualizerUnity(transform);
+            }
         }
 
         private void Start()
         {
+            if (_engine == null)
+            {
+                InitializeRuntimeIfNeeded();
+            }
+
             if (AutoLoadExample && DeveloperMode)
             {
                 bool success = false;
                 string file = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "..\\Examples\\Development\\Development.wui");                
+                file = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "../Examples/NFDRS4_Behave/Roxborough/Roxborough_global_smoke.wui");
+
                 if (File.Exists(file))
                 {                    
-                    _engine.LoadInputFromFile(file, out success);
+                    if (_engine != null)
+                    {
+                        Debug.LogWarning("[WUInity] Auto-loading input at startup: " + file);
+                        Debug.LogWarning("[WUInity6] Auto-loading input at startup: " + file);
+                        Engine.Message(null, Engine.LogType.Warning, "Auto-loading input at startup: " + file);
+                        _engine.LoadInputFromFile(file, out success);
+
+                        if (!success)
+                        {
+                            Debug.LogWarning("[WUInity] Startup auto-load failed for: " + file);
+                            Engine.Message(null, Engine.LogType.Warning, "Startup auto-load failed for: " + file);
+                        }
+                    }
 
                 }
                 else
                 {
-                    print("Could not find input file for auto load in path " + file);
+                    Debug.LogWarning("[WUInity] Could not find input file for startup auto-load path: " + file);
+                    Engine.Message(null, Engine.LogType.Warning, "Could not find input file for startup auto-load path: " + file);
                 }
             }
         }
@@ -335,6 +406,15 @@ namespace WUInity
         
         void Update()
         {       
+            if (_engine == null)
+            {
+                InitializeRuntimeIfNeeded();
+                if (_engine == null)
+                {
+                    return;
+                }
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 if (dataSampleMode != DataSampleMode.None)
@@ -358,15 +438,21 @@ namespace WUInity
             }
 
             //temp hack for changing height in smoke sim
-            if (Input.GetKey(KeyCode.KeypadPlus))
+            PREACT.Dispersion.AdvectDiffuse3D smoke3D = null;
+            if (_engine.Simulation != null && _engine.Simulation.Hazards != null)
+            {
+                smoke3D = _engine.Simulation.Hazards.Smoke as PREACT.Dispersion.AdvectDiffuse3D;
+            }
+
+            if (smoke3D != null && Input.GetKey(KeyCode.KeypadPlus))
             {
                 print("Going up.");
-                ((PREACT.Dispersion.AdvectDiffuse3D)_engine.Simulation.Hazards.Smoke).IncreaseOutputHeight();
+                smoke3D.IncreaseOutputHeight();
             }
-            else if (Input.GetKey(KeyCode.KeypadMinus))
+            else if (smoke3D != null && Input.GetKey(KeyCode.KeypadMinus))
             {
                 print("Going down.");
-                ((PREACT.Dispersion.AdvectDiffuse3D)_engine.Simulation.Hazards.Smoke).DecreaseOutputHeight();
+                smoke3D.DecreaseOutputHeight();
             }
 
             //always update visuals, even when paused
@@ -391,6 +477,11 @@ namespace WUInity
 
         public void UpdateDestinationForVehicles(Vector3 boundingBoxPoint1, Vector3 boundingBoxPoint2, Vector3 manualDestination)
         {
+            if (_engine == null || _engine.Simulation == null || _engine.Simulation.Evacuation == null || _engine.Simulation.Evacuation.TrafficModule == null)
+            {
+                return;
+            }
+
             PREACT.Math.Vector2d lowerLeft = new PREACT.Math.Vector2d(Mathf.Min(boundingBoxPoint1.x, boundingBoxPoint2.x), Mathf.Min(boundingBoxPoint1.z, boundingBoxPoint2.z));
             PREACT.Math.Vector2d upperRight = new PREACT.Math.Vector2d(Mathf.Max(boundingBoxPoint1.x, boundingBoxPoint2.x), Mathf.Max(boundingBoxPoint1.z, boundingBoxPoint2.z));
             PREACT.Math.Vector2d simulationPos = new PREACT.Math.Vector2d(manualDestination.x, manualDestination.z);
@@ -406,6 +497,15 @@ namespace WUInity
 
         public void RunSimulation(EngineTask engineTask)
         {
+            if (_engine == null)
+            {
+                InitializeRuntimeIfNeeded();
+                if (_engine == null)
+                {
+                    return;
+                }
+            }
+
             _visualsExist = false;
             SetSampleMode(DataSampleMode.TrafficDens);
             _engine.RunSimulations(engineTask);
@@ -829,6 +929,22 @@ namespace WUInity
             _engine.PauseSimulations();
         }
 
-        public string WorkingFolder { get => _engine.WorkingFolder; }
+        public string WorkingFolder
+        {
+            get
+            {
+                if (_engine == null)
+                {
+                    InitializeRuntimeIfNeeded();
+                }
+
+                if (_engine != null)
+                {
+                    return _engine.WorkingFolder;
+                }
+
+                return Path.GetDirectoryName(Application.dataPath);
+            }
+        }
     }
 }

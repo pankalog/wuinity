@@ -1,1 +1,16 @@
 _output/
+
+**Release**
+**Debug**
+
+**.idea**
+**.vscode**
+
+**/Assets/_Recovery/
+
+**.DS_Store**
+
+**DotSettings**
+
+*.slnx
+

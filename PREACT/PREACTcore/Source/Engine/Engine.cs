@@ -466,7 +466,9 @@ namespace PREACT
         public void LoadInputFromFile(string filePath, out bool success)
         {
             _dataStatus.HaveInput = false;
+            Engine.Message(null, LogType.Warning, "Loading input file2: " + filePath);
             PREACTInput input = PREACTInput.LoadFromDisk(filePath, out success);
+
             if(success)
             {
                 _input = input;
@@ -598,4 +600,3 @@ namespace PREACT
         } 
     }
 }
-
