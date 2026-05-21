@@ -16,7 +16,6 @@ namespace PREACT.Input
         private EvacuationData _data;
 
         public EvacuationData Data { get => _data; }
-        public float EvacuationOrderStart = 0.0f;
         public Dictionary<string, EvacuationDestinationInput> EvacuationDestinationInputs = new Dictionary<string, EvacuationDestinationInput>(5);
         public Dictionary<string, ResponseCurve> ResponseCurves = new Dictionary<string, ResponseCurve>(5);        
         public Dictionary<string, EvacuationGroupInput> EvacuationGroupInputs = new Dictionary<string, EvacuationGroupInput>(5);
@@ -56,21 +55,10 @@ namespace PREACT.Input
             }
 
             //critical, must be done after response curves and destinations
-            EvacuationGroupInput.Parse(EvacuationGroupInputs, inputLines, evacuationGroupLineIndices, EvacuationDestinationInputs, ResponseCurves, population, rootFolder, out success);
+            EvacuationGroupInput.Parse(EvacuationGroupInputs, inputLines, evacuationGroupLineIndices, EvacuationDestinationInputs, ResponseCurves, simulationInput, population, rootFolder, out success);
             if (!success)
             {
                 return;
-            }
-
-            //not critical
-            nameOfInput = nameof(EvacuationOrderStart);
-            if (inputToParse.TryGetValue(nameOfInput, out userInput))
-            {
-                float.TryParse(userInput, out EvacuationOrderStart);
-            }
-            else
-            {
-                PREACTInput.InputNotFoundMessage(nameOfInput);            
             }
 
             //not critical

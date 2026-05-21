@@ -13,6 +13,10 @@ namespace PREACT.Wildfire
     public abstract class WildfireModule : SimulationModule
     {
         protected double _internalDeltaTime;
+
+        protected double _currentBurnArea;
+        public double CurrentBurnArea { get => _currentBurnArea; }
+
         public WildfireModule(Simulation simulation) : base(simulation)
         {
 
@@ -43,6 +47,7 @@ namespace PREACT.Wildfire
         public abstract int GetActiveCellCount();
         public abstract List<Vector2int> GetIgnitedFireCells();
         public abstract void ConsumeIgnitedFireCells();
+        public abstract bool Ignited();
 
         public abstract void GetOffsetAndSize(out Vector2d offset, out Vector2d size);
 

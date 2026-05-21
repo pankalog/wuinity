@@ -174,7 +174,7 @@ namespace PREACT.Pedestrian
                 //assume all cars in household goes to the same goal, else we have to make a new call to select goal for every car
                 EvacuationDestination evacDest = _simulation.Evacuation.GetEvacuationDestination(household.GetVehicleLatLon(), household.EvacuationGroup);
 
-                if (evacDest.Blocked)
+                if (evacDest != null && evacDest.Blocked)
                 {
                     _simulation.Evacuation.GetBestAvailableDestination(household.EvacuationGroup, household.GetVehicleLatLon());
                 }
@@ -297,6 +297,22 @@ namespace PREACT.Pedestrian
         public override void Stop()
         {
             //there is nothing to stop;
+        }
+
+        public override void ReactToWildfire(double simulationTime)
+        {
+            for (int i = 0; i < _macroHouseholds.Count; ++i)
+            {
+                MacroHousehold household = _macroHouseholds[i];
+                if (!household.isMoving)
+                {
+                    float distance = _simulation.Hazards.DistanceToWildfire(_macroHouseholds[i].HomePosition);
+                    if (distance <= 500.0)
+                    {
+                        household.StartEvacuation(simulationTime);
+                    }
+                }                
+            }            
         }
     }
 }

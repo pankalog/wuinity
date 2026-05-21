@@ -470,12 +470,12 @@ namespace PREACT.Traffic
             try
             {
                 Vector2d wildfireOrigin = _simulation.Hazards.Wildfire.GetOriginOffset();
-                double minX = wildfireOrigin.x - _originOffset.x; // now in sumo space
-                double minY = wildfireOrigin.y - _originOffset.y;
-                double cellW = _simulation.Hazards.Wildfire.GetCellSizeX();
-                double cellH = _simulation.Hazards.Wildfire.GetCellSizeY();
+                double minXPos = wildfireOrigin.x - _originOffset.x; // now in sumo space
+                double minYPos = wildfireOrigin.y - _originOffset.y;
+                double cellSizeX = _simulation.Hazards.Wildfire.GetCellSizeX();
+                double cellSizeY = _simulation.Hazards.Wildfire.GetCellSizeY();
 
-                _cellsWithEdges = EdgeCellIntersection.SortEdgesIntoCells(_sumoConfig.Network.Edges, minX, minY, cellW, cellH, _simulation.Hazards.Wildfire.GetCellCountX(), _simulation.Hazards.Wildfire.GetCellCountX());
+                _cellsWithEdges = EdgeCellIntersection.SortEdgesIntoCells(_sumoConfig.Network.Edges, minXPos, minYPos, cellSizeX, cellSizeY, _simulation.Hazards.Wildfire.GetCellCountX(), _simulation.Hazards.Wildfire.GetCellCountX());
                 Engine.Message(null, Engine.LogType.Log, "Number of fire cells that have road junctions and will affect traffic:" + _cellsWithEdges.Count);
             }
             catch (Exception e) 
