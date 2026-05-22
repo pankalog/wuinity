@@ -1,0 +1,49 @@
+{
+  "platform": "macos",
+  "arch": "arm64",
+  "strategy": "bundle-and-rewrite-install-names",
+  "unityReleaseDir": "WUInity/Assets/PREACT/Release/netstandard2.1",
+  "modules": {
+    "gdal": {
+      "source": "PREACT/PREACTcore/ThirdParty/GDAL/osx-arm64",
+      "destination": "WUInity/Assets/PREACT/Release/netstandard2.1/ThirdParty/GDAL/osx-arm64",
+      "required": [
+        "libgdal_wrap.dylib",
+        "libogr_wrap.dylib",
+        "libosr_wrap.dylib",
+        "libgdalconst_wrap.dylib"
+      ]
+    },
+    "sumo": {
+      "source": "SUMO_HOME/../../lib or /Library/Frameworks/EclipseSUMO.framework/Versions/Current/EclipseSUMO/lib",
+      "destination": "WUInity/Assets/PREACT/Release/netstandard2.1/ThirdParty/SUMO/osx-arm64",
+      "required": [
+        "libsumocs.dylib",
+        "libsumocpp.dylib",
+        "libjupedsim.dylib",
+        "libtracics.dylib",
+        "libtracicpp.dylib"
+      ],
+      "installNameRules": [
+        {
+          "from": "@rpath/libjupedsim.dylib",
+          "to": "@loader_path/libjupedsim.dylib"
+        },
+        {
+          "fromPattern": "/opt/homebrew/*",
+          "to": "prefer @loader_path/../../GDAL/osx-arm64/* then @loader_path/*"
+        }
+      ]
+    }
+  },
+  "environment": {
+    "required": [
+      "SUMO_HOME",
+      "PROJ_LIB"
+    ],
+    "recommended": {
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8"
+    }
+  }
+}

@@ -36,12 +36,8 @@ namespace Assets.WUInity.GUI.DearIMGUI
             ImGui.Text("Load or create a new .wui file to run simulations.");
             if (ImGui.Button("OK")) { Close(); }
 
-            ImGui.SeparatorText("User set PATHs");
-            ImGui.Text("Make sure that the listed paths below are set correctly, otherwise PREACT will not work properly.");
-            ImGui.Separator();
-            ImGui.Text($"SUMO (including GDAL) path is set to {PreactGUI.Engine.SumoPath}");
-            ImGui.Text($"PROJ_LIB path is set to {PreactGUI.Engine.ProjLibPath}");
-            ImGui.Text($"PROJ_DATA path is set to {PreactGUI.Engine.ProjDataPath}");
+            ImGui.SeparatorText("Environment");
+            ImGui.Text("This PREACT build no longer exposes PATH diagnostics in the UI.");
 
             ImGui.End();    
             if(!_isOpen)

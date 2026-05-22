@@ -145,23 +145,68 @@ namespace PREACT
             //OSGeo.GDAL.Gdal.SetConfigOption("PROJ_DATA", projData);
             OSGeo.OSR.Osr.SetPROJSearchPaths(new string[] { _projLibPath, _projDataPath });
 
+            ConfigureProjDataDirectory();
+
             try
             {
                 OSGeo.GDAL.Gdal.AllRegister();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
 
             try
             {
                 OSGeo.OGR.Ogr.RegisterAll();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
+        }
+
+        private void ConfigureProjDataDirectory()
+        {
+            string projDirectory = ResolveProjDataDirectoryFromEnvironment();
+            if (string.IsNullOrEmpty(projDirectory))
+            {
+                Message(null, LogType.Warning, "PROJ_LIB/PROJ_DATA is not set to a folder containing proj.db.");
+                return;
+            }
+
+            Environment.SetEnvironmentVariable("PROJ_LIB", projDirectory);
+            Environment.SetEnvironmentVariable("PROJ_DATA", projDirectory);
+            OSGeo.GDAL.Gdal.SetConfigOption("PROJ_LIB", projDirectory);
+            OSGeo.GDAL.Gdal.SetConfigOption("PROJ_DATA", projDirectory);
+        }
+
+        private string ResolveProjDataDirectoryFromEnvironment()
+        {
+            string[] candidates =
+            {
+                Environment.GetEnvironmentVariable("PROJ_LIB"),
+                Environment.GetEnvironmentVariable("PROJ_DATA")
+            };
+
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                string candidate = candidates[i];
+                if (string.IsNullOrWhiteSpace(candidate))
+                {
+                    continue;
+                }
+
+                string normalized = Path.GetFullPath(candidate.Trim());
+
+                string projDb = Path.Combine(normalized, "proj.db");
+                if (File.Exists(projDb))
+                {
+                    return normalized;
+                }
+            }
+
+            return null;
         }
 
         public async void RunSimulations(EngineTask engineTask, int startIndexOffset = 0)
@@ -661,4 +706,3 @@ namespace PREACT
         } 
     }
 }
-
