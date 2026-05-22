@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <edgeData id="edge_density_1s" file="../_output/edge_density_1s.xml" period="1"/>
+    <laneData id="lane_density_1s" file="../_output/lane_density_1s.xml" period="1"/>
+</additional>

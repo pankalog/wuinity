@@ -73,6 +73,7 @@ namespace PREACT.Input
                 if (success)
                 {      
                     Engine.Message(null, Engine.LogType.Log, " Input file " + filePath + " loaded.");
+                    Engine.Message(null, Engine.LogType.Log, "Gmtxs");
                 }
                 else
                 {

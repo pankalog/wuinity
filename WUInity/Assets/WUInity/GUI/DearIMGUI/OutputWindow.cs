@@ -1,7 +1,9 @@
 ﻿
 using ImGuiNET;
 using PREACT;
+using System;
 using System.Globalization;
+using System.Reflection;
 using UnityEngine;
 using WUInity;
 using WUInity.Visualization;
@@ -126,6 +128,25 @@ namespace Assets.WUInity.GUI.DearIMGUI
                 ImGui.BulletText($"Total evacuated: {sim.Evacuation.GetTotalEvacuated()} / {sim.Evacuation.PedestrianModule.GetTotalPopulation() - sim.Evacuation.PedestrianModule.GetPeopleStaying()}");                
             }
 
+            ImGui.SeparatorText("Drones");
+            string droneStatus = GetDroneStatusText(sim);
+            if (string.IsNullOrWhiteSpace(droneStatus))
+            {
+                ImGui.BulletText("No drone telemetry available.");
+            }
+            else
+            {
+                string[] lines = droneStatus.Split('\n');
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i].Trim();
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        ImGui.BulletText(line);
+                    }
+                }
+            }
+
             ImGui.SeparatorText("Wildfire spread");
             if (sim.Input.WildfireModule.Enabled && sim.State == Simulation.SimulationState.Running)
             {
@@ -142,6 +163,58 @@ namespace Assets.WUInity.GUI.DearIMGUI
             {
                 PreactGUI.CloseWindow(Draw);
             }
+        }
+
+        private static string GetDroneStatusText(Simulation sim)
+        {
+            if (sim == null || sim.Evacuation == null)
+            {
+                return null;
+            }
+
+            object droneModule = GetMemberValue(sim.Evacuation, "DroneModule") ?? GetMemberValue(sim.Evacuation, "_droneModule");
+            if (droneModule == null)
+            {
+                return null;
+            }
+
+            MethodInfo method = droneModule.GetType().GetMethod("TryGetStatusText", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (method == null)
+            {
+                return null;
+            }
+
+            object[] args = new object[] { null };
+            object ok = method.Invoke(droneModule, args);
+            if (ok is bool success && success && args[0] is string text)
+            {
+                return text;
+            }
+
+            return null;
+        }
+
+        private static object GetMemberValue(object source, string name)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            Type t = source.GetType();
+            PropertyInfo p = t.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (p != null)
+            {
+                return p.GetValue(source);
+            }
+
+            FieldInfo f = t.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (f != null)
+            {
+                return f.GetValue(source);
+            }
+
+            return null;
         }
     }
 }

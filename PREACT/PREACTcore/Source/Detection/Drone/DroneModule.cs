@@ -1,28 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PREACT.Evacuation
+﻿namespace PREACT.Evacuation
 {
     public abstract class DroneModule : SimulationModule
     {
         protected DroneModule(Simulation simulation) : base(simulation)
         {
+            // Engine.Message(_simulation, Engine.LogType.Log, "[DroneModule] Constructor called.");
         }
 
         public override bool IsSimulationDone()
         {
-            throw new NotImplementedException();
+            // Engine.Message(_simulation, Engine.LogType.Log, "[DroneModule] IsSimulationDone called.");
+            // Engine.Message(_simulation, Engine.LogType.Log, "[DroneModule] Test2");
+            return false;
         }
 
         public override void Step(double simulationTime, double deltaTime)
         {
-            throw new NotImplementedException();
+            // Engine.Message(_simulation, Engine.LogType.Log, $"[DroneModule] Step called. Time: {simulationTime}, Delta: {deltaTime}");
         }
 
         public override void Stop()
         {
-            throw new NotImplementedException();
+            // Engine.Message(_simulation, Engine.LogType.Log, "[DroneModule] Stop called.");
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Assets.WUInity.GUI.DearIMGUI
                 if (ImGui.BeginMenu("Scenario"))
                 {
                     bool isRunning = false;
-                    if (PreactGUI.Engine.Simulation != null && PreactGUI.Engine.Simulation.IsRunning)
+                    if (PreactGUI.Engine.Simulation != null && PreactGUI.Engine.Simulation.State == PREACT.Simulation.SimulationState.Running)
                     {
                         isRunning = true;
                     }  
