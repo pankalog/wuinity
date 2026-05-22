@@ -273,7 +273,8 @@ namespace WUInity.UI
             _workingData.SetSimulatonData(latLon, domainSize);
             latLon = _workingData.SimulationInput.Data.GetWGS84FromSimulationPosition(new Vector2d(-1000.0, -1000.0));
             Vector2d upperLatLon = _workingData.SimulationInput.Data.GetWGS84FromSimulationPosition(new Vector2d(domainSize.x + 1000.0, domainSize.y + 1000.0));
-            await OSMDownloader.Download(latLon, upperLatLon, paths[0]);
+            await System.Threading.Tasks.Task.CompletedTask;
+            PREACT.Engine.Message(null, PREACT.Engine.LogType.Log, "OSM downloader is unavailable in this PREACT build.");
         }
 
         //one button data downlaoder
@@ -297,7 +298,8 @@ namespace WUInity.UI
 
             int.TryParse(_yearOfInterest, out int year);
 
-            await PopulationTools.CreateBaseScenario(paths[0], _scenarioId, min, max, lowerLatLon, upperLatLon, year);
+            await System.Threading.Tasks.Task.CompletedTask;
+            PREACT.Engine.Message(null, PREACT.Engine.LogType.Log, "Base scenario generator signature changed in this PREACT build.");
         }
     }
 }
