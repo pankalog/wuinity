@@ -21,6 +21,8 @@ namespace PREACT.Detection
         SatelliteDetectionStatus[] _satelliteDetectionStatus;
 
         public SatelliteDetectionStatus[] SatelliteStatus { get => _satelliteDetectionStatus; }
+        
+        public DroneModule DroneModule { get => _droneModule; }
 
         public DetectionManager(Simulation simulation)
         {

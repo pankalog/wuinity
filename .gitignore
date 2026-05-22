@@ -14,3 +14,9 @@ _output/
 
 *.slnx
 
+backups
+**sumo/**
+
+
+Examples/NFDRS4_Behave/Roxborough/sumo/rox_density_outputs.add.xml
+Examples/NFDRS4_Behave/Roxborough/sumo/rox_density.sumocfg

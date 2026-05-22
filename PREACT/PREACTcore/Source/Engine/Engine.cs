@@ -160,7 +160,7 @@ namespace PREACT
             {
                 OSGeo.OGR.Ogr.RegisterAll();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 throw e;
             }

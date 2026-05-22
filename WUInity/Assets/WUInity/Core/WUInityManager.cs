@@ -129,11 +129,6 @@ namespace WUInity
             _simBorder.gameObject.SetActive(false);
             _boundingBoxRenderer.gameObject.SetActive(false);
 
-            if (_osmBorder != null)
-            {
-                _osmBorder.gameObject.SetActive(false);
-            }
-
             InitializeRuntimeIfNeeded();
         }
 
@@ -145,10 +140,10 @@ namespace WUInity
         private void InitializeRuntimeIfNeeded()
         {
             //gui            
-            _wuiGUI = GetComponent<WUInityGUI>();
+            _wuiGUI = GetComponent<PreactGUI>();
             if (_wuiGUI == null)
             {
-                _wuiGUI = gameObject.AddComponent<WUInityGUI>();
+                _wuiGUI = gameObject.AddComponent<PreactGUI>();
             }
 
             if (_engine == null)
@@ -167,17 +162,17 @@ namespace WUInity
             }
 
             //map
-            if (_mapboxMap == null)
+            if (_webMercatorMap == null)
             {
-                _mapboxMap = FindFirstObjectByType<Mapbox.Unity.Map.AbstractMap>();
+                _webMercatorMap = FindFirstObjectByType<Mapbox.Unity.Map.AbstractMap>();
             }
 
-            if (_mapboxMap == null)
+            if (_webMercatorMap == null)
             {
                 GameObject g = new GameObject();
                 g.name = "Mapbox Map";
                 g.transform.parent = transform;
-                _mapboxMap = g.AddComponent<Mapbox.Unity.Map.AbstractMap>();
+                _webMercatorMap = g.AddComponent<Mapbox.Unity.Map.AbstractMap>();
             }
 
             if (_painter == null)
@@ -208,7 +203,7 @@ namespace WUInity
 
             if (_godCamera == null)
             {
-                _godCamera = FindFirstObjectByType<GodCamera>();
+                _godCamera = FindFirstObjectByType<OverviewCamera>();
             }
 
             if (_godCamera == null)
@@ -375,7 +370,7 @@ namespace WUInity
                     {
                         CreateVisualizers();
                     }
-                    EvacuationRenderer.UpdateEvacuationRenderer(_renderHouseholds, _renderTraffic, _engine.Simulation.Evacuation.PedestrianModule, _engine.Simulation.Evacuation.TrafficModule);
+                    EvacuationRenderer.UpdateEvacuationRenderer(_renderHouseholds, _renderTraffic, _engine.Simulation.Evacuation.PedestrianModule, _engine.Simulation.Evacuation.TrafficModule, _engine.Simulation);
                     FireRenderer.UpdateFireRenderer(_renderFireSpread, _renderSmokeDispersion, _engine.Simulation);
                 }
             }   
@@ -477,6 +472,11 @@ namespace WUInity
 
             _renderHouseholds = _input.PedestrianModule.Enabled;
             _renderTraffic = _input.TrafficModule.Enabled;
+
+            if (_renderTraffic && _input.TrafficModule != null && _input.TrafficModule.SumoInput != null)
+            {
+                EvacuationRenderer.BuildSumoRoadOverlay(_input.TrafficModule.SumoInput.ConfigurationFile, _engine.Simulation);
+            }
 
             //and then for fire rendering
             FireRenderer.CreateBuffers(_engine.Simulation);
@@ -833,6 +833,7 @@ namespace WUInity
             ShowUTMMap();
             LoadUTMMap(_input);
             UpdateSimBorders();
+
         }
 
         public void UpdateDestinations(List<PREACT.Evacuation.EvacuationDestination> destinations)
@@ -932,7 +933,7 @@ namespace WUInity
                 return Path.GetDirectoryName(Application.dataPath);
             }
         }
-        public string WorkingFolder { get => _engine.WorkingFolder; }
+        // public string WorkingFolder { get => _engine.WorkingFolder; }
 
         private bool _pickingBoundingBox;
         private bool _pickingPos;
