@@ -65,13 +65,24 @@ namespace PREACT.Evacuation
                 TaskIndex = pickedEdgeIndex,
                 TransitTarget = scanStart,
                 ScanStart = scanStart,
-                ScanEnd = scanEnd
+                ScanEnd = scanEnd,
+                EdgeId = selectedEdge.EdgeId,
+                EdgeLengthMeters = selectedEdge.LengthMeters,
+                LaneCount = selectedEdge.LaneCount,
+                IncludeBidiEdgeInCounts = _policyInput.TreatEdgesAsUndirected,
+                AccumulatedSeconds = 0.0,
+                AccumulatedVehicleSeconds = 0.0,
+                LastMeasuredDensityPerLane = 0.0
             };
 
             return true;
         }
 
-        public void OnTaskCompleted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime) { }
+        public void OnTaskStarted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime) { }
+
+        public void OnTaskCompleted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime, double measuredDensityPerLane) { }
+
+        public void OnTaskAborted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime) { }
 
         public bool TryGetRasterGrid(out Vector2d min, out Vector2d max, out int rows, out int columns)
         {

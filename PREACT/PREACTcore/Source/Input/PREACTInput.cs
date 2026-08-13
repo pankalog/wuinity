@@ -23,6 +23,7 @@ namespace PREACT.Input
         public EvacuationInput Evacuation;
         public PedestrianModuleInput PedestrianModule;
         public TrafficModuleInput TrafficModule;    
+        public DroneModuleInput DroneModule;
         public WildfireModuleInput WildfireModule;        
         public SmokeInput SmokeModule;
         public TriggerBufferModuleInput TriggerBufferModule;
@@ -40,6 +41,7 @@ namespace PREACT.Input
             Evacuation = new EvacuationInput();
             PedestrianModule = new PedestrianModuleInput();
             TrafficModule = new TrafficModuleInput();                
+            DroneModule = new DroneModuleInput();
             WildfireModule = new WildfireModuleInput();            
             SmokeModule = new SmokeInput();
             TriggerBufferModule = new TriggerBufferModuleInput();
@@ -248,6 +250,23 @@ namespace PREACT.Input
             else
             {               
                 Engine.Message(null, Engine.LogType.Log, "No wildfire module defined.");
+            }
+            if (!success)
+            {
+                return null;
+            }
+
+            //drone module
+            nameOfInput = nameof(DroneModule);
+            if (headerLineIndices.TryGetValue(nameOfInput, out lineindex))
+            {
+                ReadingInputMessage(nameOfInput);
+                newInput.DroneModule.Parse(inputLines, lineindex, headerLineIndices, out success);
+            }
+            else
+            {
+                newInput.DroneModule = new DroneModuleInput();
+                Engine.Message(null, Engine.LogType.Log, "No drone module defined.");
             }
             if (!success)
             {
@@ -484,4 +503,3 @@ namespace PREACT.Input
         }
     }
 }
-

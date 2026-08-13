@@ -70,12 +70,24 @@ namespace PREACT.Evacuation
                 TaskIndex = selectedCell,
                 TransitTarget = scanStart,
                 ScanStart = scanStart,
-                ScanEnd = scanEnd
+                ScanEnd = scanEnd,
+                // The whole cell rectangle is "tracked" during the scan, so the swarm sees
+                // every vehicle inside it — not just those on the centre scan line.
+                ScanAreaMin = cell.Min,
+                ScanAreaMax = cell.Max
             };
             return true;
         }
 
-        public void OnTaskCompleted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime)
+        // Exposes the compacted (active-only) raster cells so the module can dump their
+        // geometry to telemetry. The index into this list matches DroneTaskRuntime.TaskIndex
+        // for raster scans, so scan events can be joined back to cell geometry.
+        public IReadOnlyList<RasterCellRuntime> GetRasterCells()
+        {
+            return _rasterCells;
+        }
+
+        public void OnTaskCompleted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime, double measuredDensityPerLane)
         {
             if (task == null || task.TaskType != DroneTaskType.RasterScan)
             {
@@ -87,6 +99,14 @@ namespace PREACT.Evacuation
             {
                 _rasterCells[cellIndex].StalenessSeconds = 0.0;
             }
+        }
+
+        public void OnTaskStarted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime)
+        {
+        }
+
+        public void OnTaskAborted(DroneAgentRuntime drone, DroneTaskRuntime task, double simulationTime)
+        {
         }
 
         public bool TryGetRasterGrid(out Vector2d min, out Vector2d max, out int rows, out int columns)

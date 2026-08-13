@@ -13,6 +13,19 @@ namespace PREACT.Evacuation
         public Vector2d TransitTarget;
         public Vector2d ScanStart;
         public Vector2d ScanEnd;
+        public string EdgeId;
+        public double EdgeLengthMeters;
+        public int LaneCount;
+        public bool IncludeBidiEdgeInCounts;
+        public double AccumulatedVehicleSeconds;
+        public double AccumulatedSeconds;
+        public double LastMeasuredDensityPerLane;
+
+        // Axis-aligned area the scan covers, in domain-local simulation meters. Set by the
+        // raster policy to the bounds of the cell being scanned; used to count the vehicles
+        // physically inside that cell during the scan. Unused (zero) for edge scans.
+        public Vector2d ScanAreaMin;
+        public Vector2d ScanAreaMax;
     }
 
     public class DroneRoutingContext

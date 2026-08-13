@@ -15,6 +15,13 @@ namespace PREACT.Input
         public Vector2d ChargingStationSimulationPos = Vector2d.zero;
         public string UniformTypeId = "default";
 
+        // When true, drones spawn at random points on the largest connected component
+        // of the drone graph instead of all clustering at the dispatch entry. Useful
+        // for testing the algorithm's performance from a uniform initial distribution.
+        // RandomSpawnSeed >= 0 gives reproducible placement; < 0 uses a time-based seed.
+        public bool RandomSpawnAcrossNetwork = false;
+        public int RandomSpawnSeed = 0;
+
         public static DroneFleetInput Parse(string[] inputLines, int startIndex, out bool success)
         {
             success = true;
@@ -106,6 +113,16 @@ namespace PREACT.Input
                 {
                     newInput.UniformTypeId = userInput;
                 }
+            }
+
+            if (inputToParse.TryGetValue(nameof(RandomSpawnAcrossNetwork), out userInput))
+            {
+                bool.TryParse(userInput, out newInput.RandomSpawnAcrossNetwork);
+            }
+
+            if (inputToParse.TryGetValue(nameof(RandomSpawnSeed), out userInput))
+            {
+                int.TryParse(userInput, out newInput.RandomSpawnSeed);
             }
 
             return newInput;

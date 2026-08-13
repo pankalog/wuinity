@@ -9,7 +9,7 @@ Use of this tool is at the user’s own risk; it is provided AS IS and AS AVAILA
 The creators assumes no responsibility or liability in connection with the information or opinions contained in or expressed by this tool, its use or output.
 
 ## General
-This is software under active development, and as such incomplete features and bugs are present. PLease report any isses on Github.
+This is software under active development, and as such incomplete features and bugs are present. Please report any issues on GitHub.
 
 WUI-NITY (WUI-nity, WUInity) started as a simulation platform to combine pedestrian and traffic evacuation/simulation in combination with wildfire spread simulation that was built in the game engine Unity. As the software matured it was evident that decoupling from Unity was necessary due to multiple reasons (enabling non-GUI simulations on HPC, potential license/cost issues with Unity, etc.). It was also evident that it could be a useful tool outside of the wildfire realm, so a more general approach combining evacuation and any hazards evolved WUI-NITY into PREACT. WUI-NITY and Unity remains as a part of the software as pure visualizers, while PREACT is the simulation engine (PREACTcore more specifically). PREACT can be ran without using WUI-NITY and Unity via PREACTexecute, which is a command line tool.
 

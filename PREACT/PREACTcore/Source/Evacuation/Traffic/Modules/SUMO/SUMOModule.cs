@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using PREACT.Evacuation;
 using LIBSUMO = Eclipse.Sumo.Libsumo;
@@ -42,7 +43,22 @@ namespace PREACT.Traffic
                 _sumoVehicles = new Dictionary<string, SUMOVehicle>();
                 string configFile = Path.Combine(_simulation.Engine.WorkingFolder, _simulation.Input.TrafficModule.SumoInput.ConfigurationFile);
                 //see here for options https://sumo.dlr.de/docs/sumo.html, setting input file, start and end time
-                LIBSUMO.Simulation.start(new LIBSUMO.StringVector(new String[] { "sumo", "-c", configFile, "-b", "0.0", "-e", _simulation.Time.SimulationEndTime.ToString() }));
+                List<string> sumoArgs = new List<string>
+                {
+                    "sumo",
+                    "-c",
+                    configFile,
+                    "-b",
+                    "0.0",
+                    "-e",
+                    _simulation.Time.SimulationEndTime.ToString(CultureInfo.InvariantCulture)
+                };
+                if (_simulation.Input.TrafficModule.SumoInput.RandomSeed >= 0)
+                {
+                    sumoArgs.Add("--seed");
+                    sumoArgs.Add(_simulation.Input.TrafficModule.SumoInput.RandomSeed.ToString(CultureInfo.InvariantCulture));
+                }
+                LIBSUMO.Simulation.start(new LIBSUMO.StringVector(sumoArgs.ToArray()));
 
                 //check if destinations are valid, if not abort
                 ValidateDestinations(simulation.Evacuation.Destinations, out bool allValid);
@@ -539,6 +555,35 @@ namespace PREACT.Traffic
         public override bool IsNetworkReachable(Vector2d pointLatLon)
         {
             throw new NotImplementedException();
+        }
+
+        public override bool TryGetEdgeVehicleCount(string edgeId, bool includeBidiEdge, out int vehicleCount)
+        {
+            vehicleCount = 0;
+            if (string.IsNullOrWhiteSpace(edgeId))
+            {
+                return false;
+            }
+
+            try
+            {
+                vehicleCount += LIBSUMO.Edge.getLastStepVehicleNumber(edgeId);
+                if (includeBidiEdge)
+                {
+                    string bidiEdgeId = LIBSUMO.Edge.getBidiEdge(edgeId);
+                    if (!string.IsNullOrWhiteSpace(bidiEdgeId) && !string.Equals(bidiEdgeId, edgeId, StringComparison.Ordinal))
+                    {
+                        vehicleCount += LIBSUMO.Edge.getLastStepVehicleNumber(bidiEdgeId);
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                vehicleCount = 0;
+                return false;
+            }
         }
 
         public override void Stop()

@@ -24,6 +24,7 @@ namespace PREACT.Input
         public DateTime StartDateTime = DateTime.Now;
         public DateTime EndDateTime = DateTime.Now;
         public bool StopWhenEvacuated = false;
+        public int RandomSeed = -1;
 
         public SimulationInput()
         {
@@ -163,8 +164,14 @@ namespace PREACT.Input
                 PREACTInput.InputNotFoundMessage(nameOfInput);
             }
 
+            nameOfInput = nameof(RandomSeed);
+            if (inputToParse.TryGetValue(nameOfInput, out userInput))
+            {
+                int.TryParse(userInput, out RandomSeed);
+            }
+
             _data.UpdateData(LowerLeftLatLon);
             success = true;
         }
     }
-}    
+}

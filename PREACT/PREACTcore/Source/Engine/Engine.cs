@@ -262,6 +262,7 @@ namespace PREACT
             for (int i = 0; i < engineTask.NumberOfRuns; ++i)
             {
                 int simulationIndex = i + engineTask.SimulationIndexOffset;
+                ApplySimulationRandomSeed(simulationIndex);
                 _mainSimulation = new Simulation(this, _input, simulationIndex);
                 _simulations[0] = _mainSimulation; 
                 SetMainSimulation(simulationIndex);
@@ -303,6 +304,7 @@ namespace PREACT
                     //run first one in this process
                     if (j == 0)
                     {
+                        ApplySimulationRandomSeed(simulationIndex);
                         _mainSimulation = new Simulation(this, _input, simulationIndex);
                         tasks[j] = Task.Run(() => _mainSimulation.Run());
                     }
@@ -443,6 +445,18 @@ namespace PREACT
                 trafficArrivalDataCollection = new List<List<double>>();
             }      
         }  
+
+        private void ApplySimulationRandomSeed(int simulationIndex)
+        {
+            if (_input == null || _input.Simulation.RandomSeed < 0)
+            {
+                return;
+            }
+
+            int seed = unchecked(_input.Simulation.RandomSeed + simulationIndex);
+            PREACT.Math.Random.SetSeed(seed);
+            Message(null, LogType.Log, "Using deterministic PREACT random seed " + seed + " for simulation " + simulationIndex + ".");
+        }
         
         public void StartWUIShow()
         {

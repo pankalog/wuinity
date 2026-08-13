@@ -1,4 +1,32 @@
+# Simulation and experimental results
 _output/
+output/
+results/
+*_results/
+*.gamma_cache.csv
+*.aux.xml
+*.log
+*.bak
+
+# Generated experiment data kept outside the standard _output directories
+Examples/NFDRS4_Behave/Roxborough/sumo/reference_edge_density.xml*
+Examples/mati/ELMFIRE/historic_weather/mati_summer_weather_stats/
+Examples/mati/ELMFIRE/nelson/
+Examples/mati/old_population.csv
+Examples/mati/sumo/*.osm.xml
+vdc_vdd_figures/
+
+# Local scratch, crash, and session artifacts
+* copy.wui
+*_sesh.txt
+paper.tex
+paper-*.diff
+WUInity/mono_crash.*.json
+
+# Python/Jupyter local state
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
 
 **Release**
 **Debug**
@@ -15,8 +43,11 @@ _output/
 *.slnx
 
 backups
-**sumo/**
 
 
 Examples/NFDRS4_Behave/Roxborough/sumo/rox_density_outputs.add.xml
 Examples/NFDRS4_Behave/Roxborough/sumo/rox_density.sumocfg
+
+WUInity/Packages/com.unity.ide.visualstudio/
+
+Examples/mati/*

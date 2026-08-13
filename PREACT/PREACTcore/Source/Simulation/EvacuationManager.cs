@@ -120,10 +120,17 @@ namespace PREACT.Evacuation
                 return createdModules;
             }
 
-            CreateDroneModule();
-            if (_droneModule != null)
+            if (_input.DroneModule != null && _input.DroneModule.Enabled)
             {
-                createdModules.Add(_droneModule);
+                CreateDroneModule();
+                if (_droneModule != null)
+                {
+                    createdModules.Add(_droneModule);
+                }
+            }
+            else
+            {
+                Engine.Message(_simulation, Engine.LogType.Log, "No drone module was enabled.");
             }
 
             return createdModules;
@@ -195,7 +202,16 @@ namespace PREACT.Evacuation
 
         private void CreateDroneModule()
         {
-            _droneModule = new DebugDroneModule(_simulation);
+            _droneModule = new SwarmDroneModule(_simulation, out bool success);
+            if (success)
+            {
+                Engine.Message(_simulation, Engine.LogType.Log, "Drone module SwarmScaffold initiated.");
+            }
+            else
+            {
+                _droneModule = null;
+                Engine.Message(_simulation, Engine.LogType.Warning, "Drone module SwarmScaffold failed to initialize.");
+            }
         }
 
         public void CreateAndRunTriggerBufferModule(Simulation simulation, PREACTInput input, WeatherManager weather, TimeManager time)

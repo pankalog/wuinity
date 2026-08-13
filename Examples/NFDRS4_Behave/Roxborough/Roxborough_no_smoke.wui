@@ -9,7 +9,7 @@ StopWhenEvacuated=true
 
 [Map]
 MapProvider=Mapbox
-ZoomLevel=13
+ZoomLevel=19
 
 [Weather]
 WeatherFile=roxborough_weather.csv

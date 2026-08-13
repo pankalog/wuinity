@@ -3,14 +3,30 @@ namespace PREACT.Math
     public class Random
     {
         private static System.Random RANDOM = new System.Random();
+        private static readonly object LOCK = new object();
+
+        public static void SetSeed(int seed)
+        {
+            lock (LOCK)
+            {
+                RANDOM = new System.Random(seed);
+            }
+        }
+
         public static float Range(float minInclusive, float maxExlusive)
         {
-            return (float)(minInclusive + RANDOM.NextDouble() * (maxExlusive - minInclusive));
+            lock (LOCK)
+            {
+                return (float)(minInclusive + RANDOM.NextDouble() * (maxExlusive - minInclusive));
+            }
         }
 
         public static double Range(double minInclusive, double maxExlusive)
         {
-            return minInclusive + RANDOM.NextDouble() * (maxExlusive - minInclusive);
+            lock (LOCK)
+            {
+                return minInclusive + RANDOM.NextDouble() * (maxExlusive - minInclusive);
+            }
         }
 
         /// <summary>
@@ -21,7 +37,10 @@ namespace PREACT.Math
         /// <returns></returns>
         public static int Range(int minInclusive, int maxExclusive)
         {
-            return RANDOM.Next(minInclusive, maxExclusive);
+            lock (LOCK)
+            {
+                return RANDOM.Next(minInclusive, maxExclusive);
+            }
         }
 
         /// <summary>
@@ -29,7 +48,13 @@ namespace PREACT.Math
         /// </summary>
         public static float valueF
         {
-            get{ return (float)RANDOM.NextDouble(); }
+            get
+            {
+                lock (LOCK)
+                {
+                    return (float)RANDOM.NextDouble();
+                }
+            }
         }
 
         /// <summary>
@@ -37,7 +62,13 @@ namespace PREACT.Math
         /// </summary>
         public static double valueD
         {
-            get { return RANDOM.NextDouble(); }
+            get
+            {
+                lock (LOCK)
+                {
+                    return RANDOM.NextDouble();
+                }
+            }
         }
     }
 }

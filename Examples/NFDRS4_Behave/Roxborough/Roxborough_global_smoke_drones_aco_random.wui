@@ -1,15 +1,16 @@
 [Simulation]
-Name=Roxborough_global_smoke_drones_aco
+Name=Roxborough_global_smoke_drones_aco_random
 LowerLeftLatLon=39.409924,-105.104505
 DomainSize=10000.0,11000.0
 DeltaTime=1.0
 StartDateTime=2001-06-05T11:00:00
-EndDateTime=2001-06-06T11:00:00
+EndDateTime=2001-06-07T11:00:00
 StopWhenEvacuated=true
+RandomSeed=424242
 
 [Map]
 MapProvider=Mapbox
-ZoomLevel=13
+ZoomLevel=16
 
 [Weather]
 WeatherFile=roxborough_weather.csv
@@ -26,7 +27,7 @@ MaxCars=1
 MaxCarsProbability=0.3
 
 [Evacuation]
-EvacuationOrderStart=0.0
+EvacuationOrderStart=4000
 UseTriggerBufferEvacuation=false
 TriggerBufferFile=fire/trigger_buffer.asc
 
@@ -91,6 +92,7 @@ TimeInput=Relative
 5400, 1.0
 
 [EvacuationGroup]
+EvacuationOrderDateTime=2001-06-05T11:30:00
 Name=groupA
 Demographics=one_car
 DestinationChoice=EvacGroupCDF
@@ -102,6 +104,7 @@ DestinationsCDF=0.4,0.7,1.0
 Color=1.0,1.0,0.0
 
 [EvacuationGroup]
+EvacuationOrderDateTime=2001-06-05T11:30:00
 Name=groupB
 Demographics=one_car
 ShapeFile=groups/groupB.shp
@@ -113,6 +116,7 @@ ResponseCurvesCDF=1.0
 Color=1.0,1.0,0.0
 
 [EvacuationGroup]
+EvacuationOrderDateTime=2001-06-05T11:30:00
 Name=groupC
 Demographics=one_car
 ShapeFile=groups/groupC.shp
@@ -142,20 +146,26 @@ ConfigurationFile=sumo/rox_density.sumocfg
 UTMoffset=-491253.49,-4359238.56
 SmokeAlpha=0.4967
 SmokeBeta=-0.02910
+RandomSeed=424242
 
 [DroneModule]
 Enabled=true
 Module=SwarmScaffold
+EnableTelemetryOutput=true
+TelemetryIntervalSeconds=1.0
+TelemetryIncludeEdgePheromones=true
 
 [DroneFleet]
-DroneCount=20
+DroneCount=50
 CruiseSpeedMps=15.0
-BatteryEnduranceSeconds=4800.0
+BatteryEnduranceSeconds=480000000.0
 ReturnReserveFraction=0.10
 RechargeDurationSeconds=1200.0
 AutoPlaceChargingStationBottomLeft=true
 ChargingStationSimulationPos=0.0,0.0
 UniformTypeId=default
+RandomSpawnAcrossNetwork=false
+RandomSpawnSeed=42
 
 [DronePolicy]
 RoutingPolicy=AcoStigmergic
@@ -166,15 +176,28 @@ AllowEdgeOverlap=true
 DiagnosticsIntervalSeconds=10.0
 StalenessWeight=1.0
 VehicleDensityWeight=0.0
+EdgeMergeToleranceMeters=10.0
+MinComponentEdges=1
 
-[AcsPolicy]
-Alpha=1.0
-Beta=2.0
-EvaporationRate=0.2
-OneAntPerDrone=true
-NextEdgeOnly=true
-AgeUpAndResetOnScan=true
-HeuristicMode=PureDistance
+; [DronePolicy]
+; RoutingPolicy=Raster
+; TreatEdgesAsUndirected=true
+; MarkScannedOnFullTraversal=true
+; AllowOffRoadTransit=true
+; AllowEdgeOverlap=true
+; DiagnosticsIntervalSeconds=10.0
+; StalenessWeight=1.0
+; VehicleDensityWeight=0.0
+
+
+; [AcsPolicy]
+; Alpha=1.0
+; Beta=2.0
+; EvaporationRate=0.2
+; OneAntPerDrone=true
+; NextEdgeOnly=true
+; AgeUpAndResetOnScan=true
+; HeuristicMode=PureDistance
 
 [RasterPolicy]
 UseDroneOwnedGrid=true
@@ -182,18 +205,29 @@ PreferRoadIntersectingCells=true
 CellSizeMeters=250.0
 
 [AcoStigmergicPolicy]
+; --- Decay rates ---
 RhoS=0.01
-RhoV=0.005
-RhoC=0.1
-Qs=1.0
-Qv=1.0
-Qc=1.0
-Alpha=1.0
-Beta=1.0
-Delta=1.0
+RhoV=0.001
+RhoC=0.005
+; --- Deposit magnitudes --- 
+; DEPOSIT AMOUNT == 0 MEANS THAT THERE IS A UNIFORM WALK ACROSS ALL ROADS
+Qs=0
+Qv=0
+Qc=0
+; --- Decision exponents ---
+Alpha=1.5
+Beta=2.3
+Delta=5.0
+; --- Pheromone Diffusion ---
+DiffusionV=0.1
+DiffusionStepSeconds=1.0
+
+
 UseBidiAggregation=true
-GammaSourceFile=_output/edge_density_1s.xml
+GammaSourceFile=sumo/reference_edge_density.xml
 DefaultGamma=1.0
+RandomSeed=424243
+UseReferenceWeightsOnline=true
 
 [WildfireModule]
 Enabled=true

@@ -108,6 +108,12 @@ namespace PREACT.Traffic
             return vehicles;
         }
 
+        public virtual bool TryGetEdgeVehicleCount(string edgeId, bool includeBidiEdge, out int vehicleCount)
+        {
+            vehicleCount = 0;
+            return false;
+        }
+
         public abstract void SetManualDestination(List<TrafficModuleVehicle> vehicles, Vector2d simulationPos, EvacuationDestination evacuationDestination);
     }
 }

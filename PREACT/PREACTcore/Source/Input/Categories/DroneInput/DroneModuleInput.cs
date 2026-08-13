@@ -9,6 +9,9 @@ namespace PREACT.Input
 
         public bool Enabled = false;
         public DroneModules Module = DroneModules.SwarmScaffold;
+        public bool EnableTelemetryOutput = true;
+        public double TelemetryIntervalSeconds = 1.0;
+        public bool TelemetryIncludeEdgePheromones = true;
         public DroneFleetInput Fleet = new DroneFleetInput();
         public DronePolicyInput Policy = new DronePolicyInput();
         public AcsPolicyInput AcsPolicy = new AcsPolicyInput();
@@ -50,6 +53,31 @@ namespace PREACT.Input
                         Engine.Message(null, Engine.LogType.Warning, $"Unknown {nameOfInput}={userInput}, using default {Module}.");
                         break;
                 }
+            }
+
+            nameOfInput = nameof(EnableTelemetryOutput);
+            if (inputToParse.TryGetValue(nameOfInput, out userInput))
+            {
+                bool.TryParse(userInput, out EnableTelemetryOutput);
+            }
+
+            nameOfInput = nameof(TelemetryIntervalSeconds);
+            if (inputToParse.TryGetValue(nameOfInput, out userInput))
+            {
+                if (double.TryParse(userInput, out double value) && value > 0.0)
+                {
+                    TelemetryIntervalSeconds = value;
+                }
+                else
+                {
+                    Engine.Message(null, Engine.LogType.Warning, $"{nameOfInput} must be > 0, using default {TelemetryIntervalSeconds}.");
+                }
+            }
+
+            nameOfInput = nameof(TelemetryIncludeEdgePheromones);
+            if (inputToParse.TryGetValue(nameOfInput, out userInput))
+            {
+                bool.TryParse(userInput, out TelemetryIncludeEdgePheromones);
             }
 
             if (headerLineIndex.TryGetValue(nameof(DroneFleet), out int lineIndex))
@@ -111,6 +139,9 @@ namespace PREACT.Input
             }
 
             success = true;
+
+            Engine.Message(null, Engine.LogType.Log,
+                $"[DroneScaffold][Input] DroneModule parsed: Enabled={Enabled}, Module={Module}, DroneCount={Fleet.DroneCount}, RoutingPolicy={Policy.RoutingPolicy}, Telemetry={EnableTelemetryOutput}, TelemetryInterval={TelemetryIntervalSeconds:0.###}s");
         }
 
         private const string DroneFleet = "DroneFleet";

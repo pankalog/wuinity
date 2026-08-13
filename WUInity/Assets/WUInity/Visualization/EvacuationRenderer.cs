@@ -168,6 +168,11 @@ namespace WUInity.Visualization
         private void UpdateDroneAndFocusedCellVisuals(TrafficModule trafficModule, Simulation simulation)
         {
             object droneModule = GetDroneModule(simulation);
+            if (droneModule == null)
+            {
+                EnsureCount(_droneMarkers, 0, CreateDroneMarker, DestroyMarker);
+                return;
+            }
             Vector2d[] positions = GetDronePositions(droneModule);
             EnsureCount(_droneMarkers, positions.Length, CreateDroneMarker, DestroyMarker);
 
@@ -183,7 +188,7 @@ namespace WUInity.Visualization
             {
                 string moduleName = droneModule != null ? droneModule.GetType().FullName : "null";
                 int activeMaskCount = CountActiveMaskCells(droneModule);
-                Debug.Log($"[WUInity][DroneViz] module={moduleName} positions={positions.Length} markers={_droneMarkers.Count} activeMask={activeMaskCount} spriteLoaded={_droneSpriteLoaded} spriteNull={_droneSprite == null}");
+                Debug.Log($"[WUInity TEST][DroneViz] module={moduleName} positions={positions.Length} markers={_droneMarkers.Count} activeMask={activeMaskCount} spriteLoaded={_droneSpriteLoaded} spriteNull={_droneSprite == null}");
                 if (positions.Length > 0)
                 {
                     Vector2d p = positions[0];
@@ -216,7 +221,7 @@ namespace WUInity.Visualization
 
             GameObject dot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             dot.transform.SetParent(marker.transform, false);
-            dot.transform.localScale = new Vector3(180f, 180f, 180f);
+            dot.transform.localScale = new Vector3(70f, 70f, 70f);
             Collider c = dot.GetComponent<Collider>();
             if (c != null)
             {
@@ -226,8 +231,20 @@ namespace WUInity.Visualization
             Renderer renderer = dot.GetComponent<Renderer>();
             if (renderer != null)
             {
-                renderer.material = new Material(Shader.Find("Standard"));
-                renderer.material.color = Color.magenta;
+                Material material = new Material(Shader.Find("Standard"));
+                // Configure the Standard shader for transparent rendering. Setting the
+                // colour alpha alone has no effect unless the material is switched into
+                // its transparent blend mode with the matching keywords and render queue.
+                material.SetFloat("_Mode", 3f); // 3 = Transparent
+                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                material.SetInt("_ZWrite", 0);
+                material.DisableKeyword("_ALPHATEST_ON");
+                material.EnableKeyword("_ALPHABLEND_ON");
+                material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+                material.color = new Color(1f, 0f, 1f, 0.45f); // magenta, semi-transparent
+                renderer.material = material;
             }
 
             return marker;

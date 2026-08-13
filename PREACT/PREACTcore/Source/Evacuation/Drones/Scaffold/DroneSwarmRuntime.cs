@@ -69,10 +69,11 @@ namespace PREACT.Evacuation
         public Vector2d Start;
         public Vector2d End;
         public double LengthMeters;
+        public int LaneCount;
         public double StalenessSeconds;
         public double Pheromone;
 
-        public DroneEdgeRuntime(string edgeId, string fromNode, string toNode, Vector2d start, Vector2d end, double lengthMeters)
+        public DroneEdgeRuntime(string edgeId, string fromNode, string toNode, Vector2d start, Vector2d end, double lengthMeters, int laneCount)
         {
             EdgeId = edgeId;
             FromNode = fromNode;
@@ -80,6 +81,7 @@ namespace PREACT.Evacuation
             Start = start;
             End = end;
             LengthMeters = lengthMeters;
+            LaneCount = System.Math.Max(1, laneCount);
             StalenessSeconds = 0.0;
             Pheromone = 0.0;
         }

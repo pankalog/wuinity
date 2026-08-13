@@ -28,8 +28,17 @@ namespace PREACT
             _simulationTime = 0;
 
             TimeZoneResult iana = TimeZoneLookup.GetTimeZone(simulation.Input.Simulation.LowerLeftLatLon.x, simulation.Input.Simulation.LowerLeftLatLon.y);
-            string windows = TimeZoneConverter.TZConvert.IanaToWindows(iana.Result);
-            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById(windows);
+            TimeZoneInfo tz;
+            try
+            {
+                // Cross-platform resolver: accepts both IANA and Windows IDs.
+                tz = TimeZoneConverter.TZConvert.GetTimeZoneInfo(iana.Result);
+            }
+            catch
+            {
+                // Fallback for edge cases where lookup/mapping fails.
+                tz = TimeZoneInfo.Local;
+            }
             DateTimeOffset dto = new DateTimeOffset(input.Simulation.StartDateTime, tz.GetUtcOffset(input.Simulation.StartDateTime));
 
             _startDateTime = dto.DateTime;

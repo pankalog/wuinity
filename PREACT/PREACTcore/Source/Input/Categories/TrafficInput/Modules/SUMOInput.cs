@@ -20,6 +20,7 @@ namespace PREACT.Input
         public double OutputRasterSize = 25.0;        
         public float SmokeAlpha = 0f;
         public float SmokeBeta = 0f;
+        public int RandomSeed = -1;
 
         public SUMOInput()
         {
@@ -78,6 +79,12 @@ namespace PREACT.Input
             else
             {
                 PREACTInput.InputNotFoundMessage(nameOfInput);
+            }
+
+            nameOfInput = nameof(RandomSeed);
+            if (inputToParse.TryGetValue(nameOfInput, out userInput))
+            {
+                int.TryParse(userInput, out newInput.RandomSeed);
             }
 
             if (issues == 0)

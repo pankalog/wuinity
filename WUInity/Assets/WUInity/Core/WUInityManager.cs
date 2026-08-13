@@ -17,6 +17,7 @@ using PREACT.Population;
 using WUInity.Visualization;
 using Assets.WUInity.GUI.DearIMGUI;
 using Mapbox.Utils;
+using System.Security.Cryptography;
 
 namespace WUInity
 {
@@ -232,6 +233,8 @@ namespace WUInity
 
         private void Start()
         {
+            LogPreactCoreAssemblyAge();
+
             if (_engine == null)
             {
                 InitializeRuntimeIfNeeded();
@@ -265,6 +268,62 @@ namespace WUInity
                     Debug.LogWarning("[WUInity] Could not find input file for startup auto-load path: " + file);
                     Engine.Message(null, Engine.LogType.Warning, "Could not find input file for startup auto-load path: " + file);
                 }
+            }
+        }
+
+        private static void LogPreactCoreAssemblyAge()
+        {
+            try
+            {
+                System.Reflection.Assembly assembly = typeof(Engine).Assembly;
+                string assemblyPath = assembly.Location;
+                if (string.IsNullOrWhiteSpace(assemblyPath) || !File.Exists(assemblyPath))
+                {
+                    Debug.LogWarning("[WUInity] PREACTcore assembly path unavailable at startup.");
+                    return;
+                }
+
+                System.DateTime createdUtc = File.GetCreationTimeUtc(assemblyPath);
+                System.DateTime writtenUtc = File.GetLastWriteTimeUtc(assemblyPath);
+                System.TimeSpan age = System.DateTime.UtcNow - createdUtc;
+                System.TimeSpan writeAge = System.DateTime.UtcNow - writtenUtc;
+                if (age < System.TimeSpan.Zero)
+                {
+                    age = System.TimeSpan.Zero;
+                }
+                if (writeAge < System.TimeSpan.Zero)
+                {
+                    writeAge = System.TimeSpan.Zero;
+                }
+
+                string sha256 = ComputeFileSha256(assemblyPath);
+                string version = assembly.GetName().Version != null ? assembly.GetName().Version.ToString() : "unknown";
+                string mvid = assembly.ManifestModule.ModuleVersionId.ToString();
+
+                Debug.Log($"[WUInity] PREACTcore loaded assembly: version={version} mvid={mvid} path={assemblyPath}");
+                Debug.Log($"[WUInity] PREACTcore DLL times: ageByCreation={age.TotalSeconds:0.0}s ageByLastWrite={writeAge.TotalSeconds:0.0}s createdUTC={createdUtc:yyyy-MM-dd HH:mm:ss} lastWriteUTC={writtenUtc:yyyy-MM-dd HH:mm:ss}");
+                Debug.Log($"[WUInity] PREACTcore DLL fingerprint: size={new FileInfo(assemblyPath).Length} sha256={sha256}");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[WUInity] Failed to read PREACTcore DLL timestamp: " + e.Message);
+            }
+        }
+
+        private static string ComputeFileSha256(string path)
+        {
+            try
+            {
+                using (FileStream stream = File.OpenRead(path))
+                using (SHA256 sha = SHA256.Create())
+                {
+                    byte[] hash = sha.ComputeHash(stream);
+                    return System.BitConverter.ToString(hash).Replace("-", string.Empty);
+                }
+            }
+            catch (System.Exception e)
+            {
+                return "error:" + e.GetType().Name;
             }
         }
 
